@@ -1,4 +1,18 @@
+# Composer dependencies
+/src/vendor/
+
+# Environment variables
 .env
-/vendor
-/node_modules
-/uploads
+
+# Docker files
+/docker/mongo/data/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files 
+.vscode/
