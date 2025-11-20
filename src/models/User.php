@@ -7,5 +7,9 @@ class User {
     {
         $this->collection = $db->selectCollection('users');
     }
+
+    public function createUser($data) {
+        
+    }
 }
 ?>
