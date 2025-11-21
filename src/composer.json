@@ -1,5 +1,17 @@
 {
     "require": {
+        "ext-mongodb": "*",
         "mongodb/mongodb": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Config\\": "config/",
+            "Controllers\\": "controllers/",
+            "Models\\": "models/",
+            "Routes\\": "routes/"
+        },
+        "files": [
+            "stubs/mongodb_stub.php"
+        ]
     }
 }
