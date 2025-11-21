@@ -1,44 +1,47 @@
 <?php
+namespace Controllers;
 
-require_once __DIR__ . '/../models/User.php';
+class userController {
+    private $userModel;
 
-class UserController {
-    private $user;
-
-    public function __construct($db)
+    public function __construct()
     {
-        $this->user = new User($db);
+        // dynamically instantiate the user model if available to avoid hard dependency
+        $modelClass = 'Models\\User';
+        if (class_exists($modelClass)) {
+            $this->userModel = new $modelClass();
+        } else {
+            // handle missing model gracefully
+            http_response_code(500);
+            echo json_encode(['error' => 'User model class not found']);
+            exit;
+        }
     }
 
-    public function registerAdmin()
-    {
-        header('Content-Type: application/json');
+    // create user
+    public function createUser() {
+        // read json body
+        $data = json_decode(file_get_contents('php://input'), true);
 
-        $input = json_decode(file_get_contents("php://input"), true);
+        // validate required fields
+        $required = ["firstName", "lastName", "email", "password", "role"];
+        
+        foreach ($required as $reqField) {
 
-        if (!$input || !isset($input['email']) || !isset($input['password']))
-        {
-            echo json_encode(["error" => "Invalid input"]);
-            return;
+            if (!isset($data[$reqField]) || empty($data[$reqField])) {
+                http_response_code(400);
+                echo json_encode(["error" => "$reqField is required"]);
+                return;
+            }
         }
 
-        // check if user already exists
-        $existing = $this->user->findByEmail($input['email']);
-        if($existing) 
-        {
-            echo json_encode(["error" => "Email already exists"]);
-            return;
-        }
+        // insert to db
+        $result = $this->userModel->createUser($data);
 
-        $newUser = $this->user->createUser([
-            'first_name' => $input['first_name'],
-            'last_name'  => $input['last_name'],
-            'email'      => $input['email'],
-            'password'   => $input['password'],
-            'role'       => 'admin',
+        echo json_encode([
+            "message" => "User created successfully",
+            "inserted_id" => (string)$result->getInsertedId()
         ]);
-
-        echo json_encode(["message" => "Admin created successfully"]);
     }
 }
 
